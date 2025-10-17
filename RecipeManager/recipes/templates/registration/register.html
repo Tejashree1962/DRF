@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        /* Shared CSS for the centered, card-like form */
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .register-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px; /* Max width for the card */
+            text-align: center;
+        }
+        .register-card input, .register-card label {
+            /* Styles for inputs and labels inside the registration form */
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+        .register-card .form-group p {
+             /* Target the paragraphs Django wraps the form fields in */
+            margin-bottom: 1rem; 
+        }
+        .register-card input[type="text"], 
+        .register-card input[type="password"] {
+            /* Input field styling */
+            border-radius: 8px;
+            padding: 12px 15px;
+            height: auto;
+            background-color: #f0f2f5;
+            border: 1px solid #dee2e6;
+            width: 100%;
+        }
+        .register-card .btn-success {
+            /* Main button styling, consistent with Login button */
+            background-color: #28a745;
+            border-color: #28a745;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 15px; /* Space above the button */
+        }
+        .register-card .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-card">
+        <h3 class="mb-4">Create Account</h3>
+        
+        {# Link to Login moved to top for consistency #}
+        <p class="mb-4">Already have an account? 
+            <a href="{% url 'login' %}" class="text-secondary text-decoration-none fw-bold">Log in here</a>
+        </p>
+
+        <form method="post" class="text-start">
+            {% csrf_token %}
+            
+            {# 🔑 Render form fields cleanly using .as_p and applying Bootstrap styling #}
+            {% for field in form %}
+                <div class="form-group p-0">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="alert alert-danger p-1 mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn btn-success">Register</button>
+        </form>
+    </div>
+</body>
+</html>

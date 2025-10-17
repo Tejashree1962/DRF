@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if form.instance.pk %}Edit Recipe{% else %}Add Recipe{% endif %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            max-width: 600px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+            padding: 15px;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-weight: 500;
+        }
+        .form-control {
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body class="container mt-5">
+
+    <div class="card">
+        <div class="card-header">
+            {% if form.instance.pk %}✏️ Edit Recipe{% else %}➕ Add New Recipe{% endif %}
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">💾 Save</button>
+                    <a href="{% url 'recipe_list' %}" class="btn btn-secondary">⬅ Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recipe Manager | My Recipes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    
+    <style>
+        /* Custom Styles to match the card/dashboard look */
+        body {
+            background-color: #f0f2f5; /* Light grey background */
+            padding-top: 56px; /* Space for the fixed navbar */
+        }
+        .app-navbar {
+            background-color: #ffffff; /* White navbar background */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+        }
+        .main-card {
+            background-color: #ffffff;
+            border-radius: 12px; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Card shadow */
+            padding: 2rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .recipe-table th {
+            font-weight: 600;
+            color: #6c757d; /* Muted header text color */
+            border-bottom: 2px solid #dee2e6;
+        }
+        .recipe-table td {
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+        .recipe-table tr:hover {
+            background-color: #f8f9fa; /* Light hover effect */
+        }
+        /* Style for the green 'Add Recipe' button */
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light app-navbar fixed-top">
+        <div class="container-fluid mx-5">
+            <a class="navbar-brand fw-bold text-dark" href="{% url 'recipe_list' %}">🍽️ Recipe Manager</a>
+            <div class="d-flex">
+                {% if user.is_authenticated %}
+                    <span class="navbar-text me-3">👋 {{ user.username }}</span>
+                    
+                    {# ❌ The Favorites link from the navbar was already correctly commented out. #}
+                    
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                            🚪 Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-sm btn-outline-primary me-2">🔑 Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-sm btn-outline-secondary">📝 Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container main-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-dark">My Recipes</h2>
+            <div>
+                <a href="{% url 'recipe_create' %}" class="btn btn-success btn-lg shadow-sm">➕ Add New Recipe</a>
+            </div>
+        </div>
+        
+        <hr class="mb-4">
+
+        {% if recipes %}
+        <div class="table-responsive">
+            <table class="table align-middle recipe-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Recipe Title</th>
+                        <th style="width: 20%;">Date Created</th>
+                        <th style="width: 35%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for recipe in recipes %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'recipe_detail' recipe.id %}" class="fw-bold text-primary">{{ recipe.title }}</a>
+                        </td>
+                        <td>{{ recipe.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            {% if user.is_authenticated %}
+                                
+                                {# ✅ CORRECTED: Deleted the old favorites button logic completely #}
+                                
+                                <a href="{% url 'recipe_update' recipe.id %}" class="btn btn-sm btn-info me-2">✏️ Edit</a>
+                                
+                                <a href="{% url 'recipe_delete' recipe.id %}" class="btn btn-sm btn-outline-danger">🗑 Delete</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="alert alert-info text-center mt-5">
+                <p class="mb-0">You haven't added any recipes yet! Click the "➕ Add New Recipe" button to get started.</p>
+            </div>
+        {% endif %}
+
+    </div>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</body>
+</html>

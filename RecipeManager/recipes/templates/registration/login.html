@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        /* CSS from previous response to create the centered card look */
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .login-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-card .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            height: auto;
+            background-color: #f0f2f5;
+            border: 1px solid #dee2e6;
+        }
+        .login-card .form-label {
+            display: none;
+        }
+        .login-card .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            width: 100%;
+        }
+        .login-card .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .input-group-text {
+            background-color: #f0f2f5;
+            border-color: #dee2e6;
+            border-right: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h3 class="mb-4">Log In</h3>
+        
+        {# 🔑 Register Link Moved to Top for Prominence (matching the image layout) #}
+        <p class="mb-4">New user? 
+            <a href="{% url 'register' %}" class="text-success text-decoration-none fw-bold">Create an account</a>
+        </p>
+
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                Invalid username or password. Please try again.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            {# Using manual input fields for styling/placeholders #}
+            <div class="mb-3 input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
+                       class="form-control" placeholder="Username" required>
+            </div>
+            
+            <div class="mb-4 input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" 
+                       class="form-control" placeholder="Password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-success mb-3">Log in</button>
+        </form>
+
+        {# 🔑 Removed the 'Forgot password' link #}
+    </div>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</body>
+</html>
