@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User 
 import requests
 import json 
-from datetime import datetime # 🔑 CRITICAL FIX: ADDED THIS IMPORT
+from datetime import datetime
 
 from .models import Recipe 
 from .forms import RecipeForm 
@@ -15,7 +15,7 @@ API_BASE_URL = "http://127.0.0.1:8001/api/v1/recipes/"
 JWT_TOKEN_URL = "http://127.0.0.1:8001/api/token/" 
 
 
-# 🔑 JWT HELPER FUNCTION
+# 🔑 JWT HELPER FUNCTION (Unchanged)
 def get_auth_headers_jwt(request):
     """Retrieves the JWT token from the session and formats the Authorization header."""
     token = request.session.get('access_token')
@@ -30,7 +30,7 @@ def get_auth_headers_jwt(request):
 # ----------------- AUTHENTICATION HANDLERS (JWT) -----------------
 
 def login_user(request):
-    """Handles login by acquiring JWT tokens from the backend API."""
+    # ... (login_user function remains the same) ...
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST) 
         
@@ -79,20 +79,48 @@ def logout_user(request):
 
 
 def register(request):
-    """Handles registration using Django's form, saving user to the shared DB."""
+    """
+    Handles registration, saves user, logs user into Django session,
+    AND acquires JWT token immediately after creation.
+    """
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
+            
+            # 1. Capture credentials BEFORE form.save() and session creation
+            username = form.cleaned_data.get('username')
+            # 🔑 FIX: Get the password from one of the form's password fields
+            # UserCreationForm uses password2 as the clean, final password field
+            password = form.cleaned_data.get('password2') 
+            
+            # 1. Create User and Log into Django Session
             user = form.save()
             login(request, user) 
+
+            # 2. CRITICAL FIX: Acquire JWT Token
+            api_payload = {'username': username, 'password': password}
+            
+            try:
+                # Call API to exchange credentials for a token
+                response = requests.post(JWT_TOKEN_URL, data=api_payload)
+            except requests.exceptions.ConnectionError:
+                return redirect("recipe_list") 
+
+            if response.status_code == 200:
+                tokens = response.json()
+                # Store Access Token in the session for future API calls
+                request.session['access_token'] = tokens['access']
+            
             return redirect("recipe_list")
+        
+        # If form is NOT valid, re-render form with errors
+        return render(request, "registration/register.html", {"form": form})
     else:
         form = UserCreationForm()
     return render(request, "registration/register.html", {"form": form})
 
-
 # ----------------- CRUD VIEWS (API CLIENT) -----------------
-
+# ... (All CRUD functions remain the same, as they already use get_auth_headers_jwt)
 @login_required 
 def recipe_list(request):
     recipes = [] 
@@ -107,15 +135,12 @@ def recipe_list(request):
     if response.status_code == 200:
         recipes = response.json()
         
-        # 🔑 FIX: Iterate and convert date for list view display
         for recipe in recipes:
             created_at_str = recipe.get('created_at')
             if created_at_str:
                 try:
-                    # Convert ISO string to datetime object for template filter
                     recipe['created_at'] = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
                 except ValueError:
-                    # If conversion fails, leave it as a string
                     pass
     else:
         error_message = f"Error fetching recipes from API (Status {response.status_code}). Please re-login."
@@ -140,7 +165,6 @@ def recipe_detail(request, pk):
     if response.status_code == 200:
         recipe_data = response.json()
         
-        # 🔑 FIX: Convert date for detail view display
         created_at_str = recipe_data.get('created_at')
         if created_at_str:
             try:
